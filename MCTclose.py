@@ -125,6 +125,43 @@ def BollingerBands( frame ):
 
     return frame;
 
+def RSI( frame ):
+    "Relative Strength Indicator"
+    zeros = [0.0] * frame.shape[0]
+    frame['RSI'] = zeros
+
+    averageGain = 0
+    averageLoss = 0
+
+    for index in range(1, frame.shape[0]):
+        signedDiff = frame.at[index, 'Close'] - frame.at[index-1, 'Close']
+        priceDiff = abs(signedDiff)
+        if index < strengthDays-1:
+            if signedDiff >= 0:
+                averageGain = averageGain + priceDiff
+            else:
+                averageLoss = averageLoss + priceDiff
+        elif index == strengthDays-1:
+            if signedDiff >=0:
+                averageGain = (averageGain + priceDiff)/strengthDays
+                averageLoss = averageLoss/strengthDays
+                frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
+            else:
+                averageGain = averageGain/strengthDays
+                averageLoss = (averageLoss + priceDiff)/strengthDays
+                frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
+        else:
+            if signedDiff >=0:
+                averageGain = ((averageGain * (strengthDays-1))+priceDiff)/strengthDays
+                averageLoss = averageLoss * (strengthDays-1)/strengthDays
+                frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
+            else:
+                averageGain = averageGain * (strengthDays-1)/strengthDays
+                averageLoss = ((averageLoss * (strengthDays-1))+priceDiff)/strengthDays
+                frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
+
+    return frame;
+
 ###############################################################
 
 fileName = input("Enter name of the csv file including .csv: ")
@@ -144,7 +181,23 @@ dataFrame = FullAverage(dataFrame)
 dataFrame = HalfAverage(dataFrame)
 dataFrame = MACD(dataFrame)
 dataFrame = BollingerBands(dataFrame)
+dataFrame = RSI(dataFrame)
 
-plt.plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], dataFrame['Date'], dataFrame['LowerBand'])
-plt.legend(['Close', 'Upper', 'Lower'])
+plt.subplot(311)
+upperLimit = 70
+lowerLimit = 30
+plt.plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
+plt.legend(['RSI', 'Sell', 'Buy'])
+plt.grid(True, linestyle='--')
+
+plt.subplot(312)
+plt.plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
+plt.legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
+plt.grid(True, linestyle='--')
+
+plt.subplot(313)
+plt.plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--')
+plt.legend(['MACD', 'Signal'])
+plt.grid(True, linestyle='--')
+
 plt.show()
