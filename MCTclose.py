@@ -187,8 +187,9 @@ plt.subplot(311)
 upperLimit = 70
 lowerLimit = 30
 plt.plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
-plt.legend(['RSI', 'Sell', 'Buy'])
+plt.legend(['RSI', 'Sell', 'Buy'], loc='upper left')
 plt.grid(True, linestyle='--')
+plt.title(fileName)
 
 plt.subplot(312)
 plt.plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
@@ -196,7 +197,7 @@ plt.legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
 plt.grid(True, linestyle='--')
 
 plt.subplot(313)
-plt.plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--')
+plt.plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
 plt.legend(['MACD', 'Signal'])
 plt.grid(True, linestyle='--')
 
