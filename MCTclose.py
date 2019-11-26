@@ -7,6 +7,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 averageDays = 360
+signalDays = 130
 strengthDays = 14
 
 ################ FUNCTIONS ####################################
@@ -91,16 +92,16 @@ def MACD( frame ):
     frame['MACD'] = zeros
     frame['MACDsignal'] = zeros
     daysMACD = averageDays
-    daysMACDsig = averageDays+130
+    daysMACDsig = averageDays+signalDays
     macdSignal = 0
-    percentage = 2.0/(130+1)
+    percentage = 2.0/(signalDays+1)
 
     for index in range(daysMACD-1, frame.shape[0]):
         frame.at[index, 'MACD'] = frame.at[index, 'HalfAvg'] - frame.at[index, 'FullAvg']
         if index < daysMACDsig-1:
             macdSignal = macdSignal + frame.at[index, 'MACD']
         elif index == daysMACDsig-1:
-            macdSignal = (macdSignal + frame.at[index, 'MACD'])/130
+            macdSignal = (macdSignal + frame.at[index, 'MACD'])/signalDays
             frame.at[index, 'MACDsignal'] = macdSignal
         else:
             macdSignal = (frame.at[index, 'MACD'] * percentage) + (macdSignal * (1-percentage))
@@ -183,22 +184,21 @@ dataFrame = MACD(dataFrame)
 dataFrame = BollingerBands(dataFrame)
 dataFrame = RSI(dataFrame)
 
-plt.subplot(311)
+fig, axs = plt.subplots(3, 1, sharex=True)
+fig.suptitle(fileName, fontsize=12)
 upperLimit = 70
 lowerLimit = 30
-plt.plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
-plt.legend(['RSI', 'Sell', 'Buy'], loc='upper left')
-plt.grid(True, linestyle='--')
-plt.title(fileName)
 
-plt.subplot(312)
-plt.plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
-plt.legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
-plt.grid(True, linestyle='--')
+axs[0].plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
+axs[0].legend(['RSI', 'Sell', 'Buy'], loc='upper left')
+axs[0].grid(True, linestyle='--')
 
-plt.subplot(313)
-plt.plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
-plt.legend(['MACD', 'Signal'])
-plt.grid(True, linestyle='--')
+axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
+axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
+axs[1].grid(True, linestyle='--')
+
+axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
+axs[2].legend(['MACD', 'Signal'])
+axs[2].grid(True, linestyle='--')
 
 plt.show()
