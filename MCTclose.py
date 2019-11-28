@@ -186,8 +186,8 @@ dataFrame = RSI(dataFrame)
 
 fig, axs = plt.subplots(3, 1, sharex=True)
 fig.suptitle(fileName, fontsize=12)
-upperLimit = 70
-lowerLimit = 30
+upperLimit = 80
+lowerLimit = 40
 
 axs[0].plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
 axs[0].legend(['RSI', 'Sell', 'Buy'], loc='upper left')
