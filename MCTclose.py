@@ -201,4 +201,5 @@ axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFr
 axs[2].legend(['MACD', 'Signal'])
 axs[2].grid(True, linestyle='--')
 
+plt.tight_layout()
 plt.show()
