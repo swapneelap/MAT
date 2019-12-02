@@ -19,6 +19,7 @@ def Flip( frame ):
     if dateDelta.days > 0:
         frame['Date'] = frame['Date'].values[::-1]
         frame['Close'] = frame['Close'].values[::-1]
+        print('Flipping the dataFrame')
 
     return frame;
 
