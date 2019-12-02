@@ -9,6 +9,7 @@ register_matplotlib_converters()
 averageDays = 360
 signalDays = 130
 strengthDays = 14
+RSImatureDays = 260
 
 ################ FUNCTIONS ####################################
 
@@ -161,6 +162,20 @@ def RSI( frame ):
                 averageLoss = ((averageLoss * (strengthDays-1))+priceDiff)/strengthDays
                 frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
 
+    frame['RSIavg'] = zeros
+    days = 7
+    rsiAverage = 0
+    percentage = 2.0/(1+days)
+    for index in range((strengthDays-1)+RSImatureDays, frame.shape[0]):
+        if index < (strengthDays-1)+RSImatureDays+days-1:
+            rsiAverage = rsiAverage + frame.at[index, 'RSI']
+        elif index == (strengthDays-1)+RSImatureDays+days-1:
+            rsiAverage = (rsiAverage+frame.at[index, 'RSI'])/days
+            frame.at[index, 'RSIavg'] = rsiAverage
+        else:
+            rsiAverage = (frame.at[index, 'RSI'] * percentage) + (rsiAverage * (1-percentage))
+            frame.at[index, 'RSIavg'] = rsiAverage
+
     return frame;
 
 ###############################################################
@@ -189,8 +204,8 @@ fig.suptitle(fileName, fontsize=12)
 upperLimit = 80
 lowerLimit = 40
 
-axs[0].plot(dataFrame['Date'], dataFrame['RSI'], 'k', dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--')
-axs[0].legend(['RSI', 'Sell', 'Buy'], loc='upper left')
+axs[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSIavg'])
+axs[0].legend(['Sell', 'Buy', 'RSI week average'], loc='upper left')
 axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
