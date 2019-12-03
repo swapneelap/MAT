@@ -164,7 +164,7 @@ def RSI( frame ):
                 frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
 
     frame['RSIavg'] = zeros
-    days = 7
+    days = 9
     rsiAverage = 0
     percentage = 2.0/(1+days)
     for index in range((strengthDays-1)+RSImatureDays, frame.shape[0]):
@@ -205,8 +205,8 @@ fig.suptitle(fileName, fontsize=12)
 upperLimit = 80
 lowerLimit = 40
 
-axs[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSIavg'])
-axs[0].legend(['Sell', 'Buy', 'RSI week average'], loc='upper left')
+axs[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSI'], dataFrame['Date'], dataFrame['RSIavg'], 'k--')
+axs[0].legend(['Sell', 'Buy', 'RSI', 'RSI average(9)'], loc='upper left')
 axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
