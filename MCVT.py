@@ -191,6 +191,8 @@ def Flip_VA( frame ):
         frame['P/E'] = frame['P/E'].values[::-1]
         frame['P/B'] = frame['P/B'].values[::-1]
 
+        print("Flipping the dataFrame")
+
     return frame;
 
 def DropNAN_VA( frame ):
@@ -323,74 +325,77 @@ while (True):
         print("Please answer y or n")
 
 if chartingSwitch:
-    fileName = input("Enter name of the csv file with 'Close' price including .csv: ")
+    fileName_CH = input("Enter name of the csv file with 'Close' price including .csv: ")
 
-    fileOpen = pd.read_csv(fileName)
-    dataFrame = pd.DataFrame(fileOpen, columns=["Date", "Close"])
+    fileOpen_CH = pd.read_csv(fileName_CH)
+    dataFrame_CH = pd.DataFrame(fileOpen_CH, columns=["Date", "Close"])
 
-    dateFormat = input("Specify the date format(http://strftime.org/): ")
+    dateFormat_CH = input("Specify the date format(http://strftime.org/): ")
 
-    dataFrame.Date = pd.to_datetime(dataFrame.Date, format=dateFormat)
+    dataFrame_CH.Date = pd.to_datetime(dataFrame_CH.Date, format=dateFormat_CH)
 
-    dataFrame = Flip_CH(dataFrame)
-    dataFrame = DropNAN_CH(dataFrame)
-    dataFrame = DataRefining_CH(dataFrame)
+    dataFrame_CH = Flip_CH(dataFrame_CH)
+    dataFrame_CH = DropNAN_CH(dataFrame_CH)
+    dataFrame_CH = DataRefining_CH(dataFrame_CH)
 
-    dataFrame = FullAverage(dataFrame)
-    dataFrame = HalfAverage(dataFrame)
-    dataFrame = MACD(dataFrame)
-    dataFrame = BollingerBands(dataFrame)
-    dataFrame = RSI(dataFrame)
+    dataFrame_CH = FullAverage(dataFrame_CH)
+    dataFrame_CH = HalfAverage(dataFrame_CH)
+    dataFrame_CH = MACD(dataFrame_CH)
+    dataFrame_CH = BollingerBands(dataFrame_CH)
+    dataFrame_CH = RSI(dataFrame_CH)
 
     fig1, axs1 = plt.subplots(3, 1, sharex=True)
-    fig1.suptitle(fileName, fontsize=12)
+    fig1.suptitle(fileName_CH, fontsize=12)
     upperLimit = 80
     lowerLimit = 40
 
-    axs1[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSI'], dataFrame['Date'], dataFrame['RSIavg'], 'k--')
+    axs1[0].plot(dataFrame_CH['Date'], [upperLimit] * dataFrame_CH.shape[0], 'r--', dataFrame_CH['Date'], [lowerLimit] * dataFrame_CH.shape[0], 'g--', dataFrame_CH['Date'], dataFrame_CH['RSI'], dataFrame_CH['Date'], dataFrame_CH['RSIavg'], 'k--')
     axs1[0].legend(['Sell', 'Buy', 'RSI', 'RSI average(9)'], loc='upper left')
     axs1[0].grid(True, linestyle='--')
 
-    axs1[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
+    axs1[1].plot(dataFrame_CH['Date'], dataFrame_CH['Close'], dataFrame_CH['Date'], dataFrame_CH['UpperBand'], 'r--', dataFrame_CH['Date'], dataFrame_CH['LowerBand'], 'g--')
     axs1[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
     axs1[1].grid(True, linestyle='--')
 
-    axs1[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
+    axs1[2].plot(dataFrame_CH['Date'], dataFrame_CH['MACD'], 'b', dataFrame_CH['Date'], dataFrame_CH['MACDsignal'], 'r--', dataFrame_CH['Date'], [0] * dataFrame_CH.shape[0], 'k')
     axs1[2].legend(['MACD', 'Signal'])
     axs1[2].grid(True, linestyle='--')
 
+    fig1.tight_layout()
+
 if valuationSwitch:
-    fileName = input("Enter name of the csv file with 'PE PB'ratio including .csv: ")
+    fileName_VA = input("Enter name of the csv file with 'PE PB'ratio including .csv: ")
 
-    fileOpen = pd.read_csv(fileName)
-    dataFrame = pd.DataFrame(fileOpen, columns=["Date", "P/E", "P/B"])
+    fileOpen_VA = pd.read_csv(fileName_VA)
+    dataFrame_VA = pd.DataFrame(fileOpen_VA, columns=["Date", "P/E", "P/B"])
 
-    dateFormat = input("Specify the date format(http://strftime.org/): ")
+    dateFormat_VA = input("Specify the date format(http://strftime.org/): ")
 
-    dataFrame.Date = pd.to_datetime(dataFrame.Date, format=dateFormat)
+    dataFrame_VA.Date = pd.to_datetime(dataFrame_VA.Date, format=dateFormat_VA)
 
-    dataFrame = Flip_VA(dataFrame)
-    dataFrame = DropNAN_VA(dataFrame)
-    dataFrame = DataRefining_VA(dataFrame)
+    dataFrame_VA = Flip_VA(dataFrame_VA)
+    dataFrame_VA = DropNAN_VA(dataFrame_VA)
+    dataFrame_VA = DataRefining_VA(dataFrame_VA)
 
-    dataFrame = PE(dataFrame)
-    dataFrame = PB(dataFrame)
-    dataFrame = ROE(dataFrame)
+    dataFrame_VA = PE(dataFrame_VA)
+    dataFrame_VA = PB(dataFrame_VA)
+    dataFrame_VA = ROE(dataFrame_VA)
 
     fig2, axs2 = plt.subplots(3, 1, sharex=True)
-    fig2.suptitle(fileName, fontsize=12)
+    fig2.suptitle(fileName_VA, fontsize=12)
 
-    axs2[0].plot(dataFrame['Date'], dataFrame['P/E'], '--', dataFrame['Date'], dataFrame['PEavg'], dataFrame['Date'], dataFrame['PEpsdev2'], dataFrame['Date'], dataFrame['PEpsdev'], dataFrame['Date'], dataFrame['PEnsdev'], dataFrame['Date'], dataFrame['PEnsdev2'])
+    axs2[0].plot(dataFrame_VA['Date'], dataFrame_VA['P/E'], '--', dataFrame_VA['Date'], dataFrame_VA['PEavg'], dataFrame_VA['Date'], dataFrame_VA['PEpsdev2'], dataFrame_VA['Date'], dataFrame_VA['PEpsdev'], dataFrame_VA['Date'], dataFrame_VA['PEnsdev'], dataFrame_VA['Date'], dataFrame_VA['PEnsdev2'])
     axs2[0].legend(['P/E', 'P/E avg', '+2STD', '+STD', '-STD', '-2STD'])
     axs2[0].grid(True, linestyle='--')
 
-    axs2[1].plot(dataFrame['Date'], dataFrame['P/B'], '--', dataFrame['Date'], dataFrame['PBavg'], dataFrame['Date'], dataFrame['PBpsdev2'], dataFrame['Date'], dataFrame['PBpsdev'], dataFrame['Date'], dataFrame['PBnsdev'], dataFrame['Date'], dataFrame['PBnsdev2'])
+    axs2[1].plot(dataFrame_VA['Date'], dataFrame_VA['P/B'], '--', dataFrame_VA['Date'], dataFrame_VA['PBavg'], dataFrame_VA['Date'], dataFrame_VA['PBpsdev2'], dataFrame_VA['Date'], dataFrame_VA['PBpsdev'], dataFrame_VA['Date'], dataFrame_VA['PBnsdev'], dataFrame_VA['Date'], dataFrame_VA['PBnsdev2'])
     axs2[1].legend(['P/B', 'P/B avg', '+2STD', '+STD', '-STD', '-2STD'])
     axs2[1].grid(True, linestyle='--')
 
-    axs2[2].plot(dataFrame['Date'], dataFrame['ROE'], 'b')
+    axs2[2].plot(dataFrame_VA['Date'], dataFrame_VA['ROE'], 'b')
     axs2[2].grid(True, linestyle='--')
 
+    fig2.tight_layout()
+
 if chartingSwitch or valuationSwitch:
-    plt.tight_layout()
     plt.show()
