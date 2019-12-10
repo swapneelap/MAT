@@ -393,6 +393,7 @@ if valuationSwitch:
     axs2[1].grid(True, linestyle='--')
 
     axs2[2].plot(dataFrame_VA['Date'], dataFrame_VA['ROE'], 'b')
+    axs2[2].legend(['ROE'])
     axs2[2].grid(True, linestyle='--')
 
     fig2.tight_layout()
