@@ -10,7 +10,7 @@ register_matplotlib_converters()
 
 daysFullAvg = 200
 daysHalfAvg = 50
-signalDays = 90
+signalDays = 30
 strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
@@ -214,6 +214,7 @@ axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
 axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
+axs[1].set_ylim([dataFrame['Close'].min(), dataFrame['Close'].max()])
 axs[1].grid(True, linestyle='--')
 
 axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
