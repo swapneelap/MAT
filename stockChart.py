@@ -8,10 +8,6 @@ import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
-averageDays = 360
-signalDays = 130
-strengthDays = 14
-RSImatureDays = 260
 
 ################ FUNCTIONS ####################################
 
@@ -56,13 +52,13 @@ def FullAverage( frame ):
     "Full exponential moving average"
     zeros = [0.0] * frame.shape[0]
     frame['FullAvg'] = zeros
-    days = averageDays
+    daysFullAvg = 200
     fullAvg = 0
-    percentage = 2.0/(days+1)
+    percentage = 2.0/(daysFullAvg+1)
     for index in range(0, frame.shape[0]):
-        if index < days-1:
+        if index < daysFullAvg-1:
             fullAvg = fullAvg + frame.at[index, 'Close']
-        elif index == days-1:
+        elif index == daysFullAvg-1:
             fullAvg = (fullAvg + frame.at[index, 'Close'])/days
             frame.at[index, 'FullAvg'] = fullAvg
         else:
@@ -75,13 +71,13 @@ def HalfAverage( frame ):
     "Half exponential moving average"
     zeros = [0.0] * frame.shape[0]
     frame['HalfAvg'] = zeros
-    days = math.floor(averageDays/2.0)
+    daysHalfAvg = 50
     halfAvg = 0
-    percentage = 2.0/(days+1)
+    percentage = 2.0/(daysHalfAvg+1)
     for index in range(0, frame.shape[0]):
-        if index < days-1:
+        if index < daysHalfAvg-1:
             halfAvg = halfAvg + frame.at[index, 'Close']
-        elif index == days-1:
+        elif index == daysHalfAvg-1:
             halfAvg = (halfAvg + frame.at[index, 'Close'])/days
             frame.at[index, 'HalfAvg'] = halfAvg
         else:
@@ -95,8 +91,9 @@ def MACD( frame ):
     zeros = [0.0] * frame.shape[0]
     frame['MACD'] = zeros
     frame['MACDsignal'] = zeros
-    daysMACD = averageDays
-    daysMACDsig = averageDays+signalDays
+    signalDays = 90
+    daysMACD = daysFullAvg
+    daysMACDsig = daysMACD + signalDays
     macdSignal = 0
     percentage = 2.0/(signalDays+1)
 
@@ -134,6 +131,7 @@ def RSI( frame ):
     "Relative Strength Indicator"
     zeros = [0.0] * frame.shape[0]
     frame['RSI'] = zeros
+    strengthDays = 14
 
     averageGain = 0
     averageLoss = 0
@@ -166,7 +164,9 @@ def RSI( frame ):
                 frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
 
     frame['RSIavg'] = zeros
-    days = 9
+    RSIaverageDays = 9
+    RSImatureDays = 260
+    days = RSIaverageDays
     rsiAverage = 0
     percentage = 2.0/(1+days)
     for index in range((strengthDays-1)+RSImatureDays, frame.shape[0]):
