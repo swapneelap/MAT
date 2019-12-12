@@ -8,6 +8,13 @@ import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
+daysFullAvg = 200
+daysHalfAvg = 50
+signalDays = 90
+strengthDays = 14
+RSIavgDays = 9
+RSImatureDays = 260
+
 
 ################ FUNCTIONS ####################################
 
@@ -52,14 +59,13 @@ def FullAverage( frame ):
     "Full exponential moving average"
     zeros = [0.0] * frame.shape[0]
     frame['FullAvg'] = zeros
-    daysFullAvg = 200
     fullAvg = 0
     percentage = 2.0/(daysFullAvg+1)
     for index in range(0, frame.shape[0]):
         if index < daysFullAvg-1:
             fullAvg = fullAvg + frame.at[index, 'Close']
         elif index == daysFullAvg-1:
-            fullAvg = (fullAvg + frame.at[index, 'Close'])/days
+            fullAvg = (fullAvg + frame.at[index, 'Close'])/daysFullAvg
             frame.at[index, 'FullAvg'] = fullAvg
         else:
             fullAvg = (frame.at[index, 'Close'] * percentage) + (fullAvg * (1-percentage))
@@ -71,14 +77,13 @@ def HalfAverage( frame ):
     "Half exponential moving average"
     zeros = [0.0] * frame.shape[0]
     frame['HalfAvg'] = zeros
-    daysHalfAvg = 50
     halfAvg = 0
     percentage = 2.0/(daysHalfAvg+1)
     for index in range(0, frame.shape[0]):
         if index < daysHalfAvg-1:
             halfAvg = halfAvg + frame.at[index, 'Close']
         elif index == daysHalfAvg-1:
-            halfAvg = (halfAvg + frame.at[index, 'Close'])/days
+            halfAvg = (halfAvg + frame.at[index, 'Close'])/daysHalfAvg
             frame.at[index, 'HalfAvg'] = halfAvg
         else:
             halfAvg = (frame.at[index, 'Close'] * percentage) + (halfAvg * (1-percentage))
@@ -91,7 +96,6 @@ def MACD( frame ):
     zeros = [0.0] * frame.shape[0]
     frame['MACD'] = zeros
     frame['MACDsignal'] = zeros
-    signalDays = 90
     daysMACD = daysFullAvg
     daysMACDsig = daysMACD + signalDays
     macdSignal = 0
@@ -115,7 +119,7 @@ def BollingerBands( frame ):
     frame['UpperBand'] = zeros
     frame['LowerBand'] = zeros
     STD = 0
-    days = math.floor(averageDays/2.0)
+    days = daysHalfAvg
 
     for index in range(days-1, frame.shape[0]):
         group = np.array([])
@@ -131,7 +135,6 @@ def RSI( frame ):
     "Relative Strength Indicator"
     zeros = [0.0] * frame.shape[0]
     frame['RSI'] = zeros
-    strengthDays = 14
 
     averageGain = 0
     averageLoss = 0
@@ -164,9 +167,7 @@ def RSI( frame ):
                 frame.at[index, 'RSI'] = 100.0 - (100/(1+(averageGain/averageLoss)))
 
     frame['RSIavg'] = zeros
-    RSIaverageDays = 9
-    RSImatureDays = 260
-    days = RSIaverageDays
+    days = RSIavgDays
     rsiAverage = 0
     percentage = 2.0/(1+days)
     for index in range((strengthDays-1)+RSImatureDays, frame.shape[0]):
@@ -208,7 +209,7 @@ upperLimit = 80
 lowerLimit = 40
 
 axs[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSI'], dataFrame['Date'], dataFrame['RSIavg'], 'k--')
-axs[0].legend(['Sell', 'Buy', 'RSI', 'RSI average(9)'], loc='upper left')
+axs[0].legend(['Sell', 'Buy', 'RSI', 'RSI average'], loc='upper left')
 axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
