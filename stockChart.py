@@ -214,7 +214,7 @@ axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
 axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
-axs[1].set_ylim([dataFrame['Close'].min(), dataFrame['Close'].max()])
+axs[1].set_ylim([dataFrame['LowerBand'].min(), dataFrame['UpperBand'].max()])
 axs[1].grid(True, linestyle='--')
 
 axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
