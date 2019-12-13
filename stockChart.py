@@ -4,6 +4,7 @@ import math
 import numpy as np
 import datetime as dt
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
@@ -14,6 +15,34 @@ signalDays = 30
 strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
+
+################ CLASS ########################################
+
+class SnaptoCursor(object):
+    def __init__(self, ax, x, y):
+        self.ax = ax
+        self.ly = ax.axvline(color='k', alpha=0.2)  # the vert line
+        self.marker, = ax.plot([0],[0], marker="o", color="crimson", zorder=3) 
+        self.x = x
+        self.y = y
+        self.txt = ax.text(0.7, 0.9, '')
+
+    def mouse_move(self, event):
+        if not event.inaxes: return
+        x = matplotlib.dates.num2date(event.xdata)
+        x = x.strftime('%Y-%m-%d')
+        print(x)
+        indx = dataFrame.index[dataFrame.Date == x]
+        print(indx[0])
+        x = self.x.at[indx[0], 'Date']
+        y = self.y.at[indx[0], 'Close']
+        self.ly.set_xdata(x)
+#        self.marker.set_data([x],[y])
+#        self.txt.set_text((x, y))
+#        self.txt.set_position((x,y))
+        self.ax.figure.canvas.draw_idle()
+
+
 
 
 ################ FUNCTIONS ####################################
@@ -214,12 +243,16 @@ axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
 axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
-axs[1].set_ylim([dataFrame['LowerBand'].min(), dataFrame['UpperBand'].max()])
+axs[1].set_ylim([dataFrame['Close'].min(), dataFrame['UpperBand'].max()])
 axs[1].grid(True, linestyle='--')
+
+cursor = SnaptoCursor(axs[1], dataFrame['Date'], dataFrame['Close'])
+cid =  plt.connect('motion_notify_event', cursor.mouse_move)
 
 axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
 axs[2].legend(['MACD', 'Signal'])
 axs[2].grid(True, linestyle='--')
 
-plt.tight_layout()
+plt.xlim(dataFrame.at[0, 'Date'], dataFrame.at[dataFrame.shape[0]-1, 'Date'])
+#plt.tight_layout()
 plt.show()
