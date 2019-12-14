@@ -16,30 +16,6 @@ strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
 
-################ CLASS ########################################
-
-class SnaptoCursor(object):
-    def __init__(self, ax, frame):
-        self.ax = ax
-        self.ly = ax.axvline(color='k')  # the vert line
-        self.marker, = ax.plot([0],[0], marker="o", linewidth=5, color="orange", zorder=5) 
-        self.frame = frame
-        self.txt = ax.text(0.07, 0.09, '', bbox={'facecolor':'white', 'alpha':0.7, 'pad':2}, fontsize=11)
-
-    def mouse_move(self, event):
-        if not event.inaxes: return
-        x = matplotlib.dates.num2date(event.xdata)
-        x = x.strftime('%Y-%m-%d')
-        indx = dataFrame.index[dataFrame.Date == x]
-        x = self.frame.at[indx[0], 'Date']
-        y = self.frame.at[indx[0], 'Close']
-        self.ly.set_xdata(x)
-        self.marker.set_data([x],[y])
-        self.txt.set_text(math.trunc(y))
-        self.txt.set_position((x+dt.timedelta(days=5), y+10))
-        self.ax.figure.canvas.draw_idle()
-
-
 
 
 ################ FUNCTIONS ####################################
@@ -215,8 +191,9 @@ def RSI( frame ):
 ###############################################################
 
 compnayName = input("Enter yfinance Symbol for the compnay: ")
-startDate = input("Enter the start date as yyyy-mm-dd: ")
-endDate = input("Enter the end date as yyyy-mm-dd: ")
+today = dt.datetime.today()
+endDate = today.strftime('%Y-%m-%d')
+startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=365)
 
 rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
 dataFrame = pd.DataFrame(rawData, columns=["Close"])
@@ -230,31 +207,12 @@ dataFrame = DataRefining(dataFrame)
 dataFrame = FullAverage(dataFrame)
 dataFrame = HalfAverage(dataFrame)
 dataFrame = MACD(dataFrame)
-dataFrame = BollingerBands(dataFrame)
-dataFrame = RSI(dataFrame)
 
-fig, axs = plt.subplots(3, 1, sharex=True)
-fig.suptitle(compnayName, fontsize=12)
-upperLimit = 80
-lowerLimit = 40
+index = dataFrame.shape[0] - 1
+currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
+MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-axs[0].plot(dataFrame['Date'], [upperLimit] * dataFrame.shape[0], 'r--', dataFrame['Date'], [lowerLimit] * dataFrame.shape[0], 'g--', dataFrame['Date'], dataFrame['RSI'], dataFrame['Date'], dataFrame['RSIavg'], 'k--')
-axs[0].legend(['Sell', 'Buy', 'RSI', 'RSI average'], loc='upper left')
-axs[0].grid(True, linestyle='--')
-
-axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
-axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
-axs[1].set_ylim([dataFrame['Close'].min(), dataFrame['UpperBand'].max()])
-axs[1].grid(True, linestyle='--')
-
-cursor = SnaptoCursor(axs[1], dataFrame)
-cid =  plt.connect('motion_notify_event', cursor.mouse_move)
-
-axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
-axs[2].legend(['MACD', 'Signal'])
-axs[2].bar(dataFrame['Date'], dataFrame['MACDsignalDiff'], color='orange')
-axs[2].grid(True, linestyle='--')
-
-plt.xlim(dataFrame.at[0, 'Date'], dataFrame.at[dataFrame.shape[0]-1, 'Date'])
-plt.tight_layout()
-plt.show()
+if currentMACDdiff > 0 and MACDdiffdiff > 0:
+    print("Yes")
+else:
+    print("No")
