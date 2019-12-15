@@ -188,31 +188,46 @@ def RSI( frame ):
 
     return frame;
 
-###############################################################
+def BUY( SYM ):
+    compnayName = SYM
+    today = dt.datetime.today()
+    endDate = today.strftime('%Y-%m-%d')
+    startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
-compnayName = input("Enter yfinance Symbol for the compnay: ")
-today = dt.datetime.today()
-endDate = today.strftime('%Y-%m-%d')
-startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=365)
+    rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
+    dataFrame = pd.DataFrame(rawData, columns=["Close"])
+    dataFrame.reset_index(level=['Date'], inplace=True)
+    dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
-rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
-dataFrame = pd.DataFrame(rawData, columns=["Close"])
-dataFrame.reset_index(level=['Date'], inplace=True)
-dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
+    dataFrame = Flip(dataFrame)
+    dataFrame = DropNAN(dataFrame)
+    dataFrame = DataRefining(dataFrame)
 
-dataFrame = Flip(dataFrame)
-dataFrame = DropNAN(dataFrame)
-dataFrame = DataRefining(dataFrame)
+    dataFrame = FullAverage(dataFrame)
+    dataFrame = HalfAverage(dataFrame)
+    dataFrame = MACD(dataFrame)
 
-dataFrame = FullAverage(dataFrame)
-dataFrame = HalfAverage(dataFrame)
-dataFrame = MACD(dataFrame)
+    index = dataFrame.shape[0] - 1
+    currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
+    MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-index = dataFrame.shape[0] - 1
-currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
-MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+    if currentMACDdiff > 0 and MACDdiffdiff > 0:
+        return True
+    else:
+        return False
 
-if currentMACDdiff > 0 and MACDdiffdiff > 0:
-    print("Yes")
-else:
-    print("No")
+#######################################################################
+
+fileOpen = pd.read_csv('NSE.csv')
+symFrame = pd.DataFrame(fileOpen, columns=['SYMBOL'])
+
+for index in range(0, symFrame.shape[0]):
+    symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
+
+finalFrame = pd.DataFrame([], columns=['SYMBOL'])
+
+for index in range(0, symFrame.shape[0]):
+    if BUY(symFrame.at[index, 'SYMBOL']):
+        finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
+
+finalFrame.to_csv('Selected_stocks.csv')
