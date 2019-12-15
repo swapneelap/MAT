@@ -26,7 +26,6 @@ def Flip( frame ):
     if dateDelta.days > 0:
         frame['Date'] = frame['Date'].values[::-1]
         frame['Close'] = frame['Close'].values[::-1]
-        print('Flipping the dataFrame')
 
     return frame;
 
@@ -37,7 +36,6 @@ def DropNAN( frame ):
         if math.isnan(frame.at[index, 'Close']):
             faults = np.append(faults, [index])
 
-    print ("Removing NANs at ", faults)
     frame = frame.drop(faults)
     frame = frame.sort_index().reset_index(drop=True)
     return frame;
@@ -227,6 +225,7 @@ for index in range(0, symFrame.shape[0]):
 finalFrame = pd.DataFrame([], columns=['SYMBOL'])
 
 for index in range(0, symFrame.shape[0]):
+    print("Processing...", symFrame.at[index, 'SYMBOL'])
     if BUY(symFrame.at[index, 'SYMBOL']):
         finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
 
