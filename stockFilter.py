@@ -216,8 +216,21 @@ def BUY( SYM ):
 
 #######################################################################
 
+today = dt.datetime.today()
+endDate = today.strftime('%Y-%m-%d')
+startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
+
 fileOpen = pd.read_csv('NSE.csv')
-symFrame = pd.DataFrame(fileOpen, columns=['SYMBOL'])
+print(fileOpen.SERIES)
+'''
+symFrame = pd.DataFrame([], columns=['SYMBOL'])
+for index in range(0, fileOpen.shape[0]):
+    RAWlistDate = dt.datetime.strptime(fileOpen[index, 'DATE OF LISTING'], '%d-%b-%Y')
+    listDate = RAWlistDate.strftime('%Y-%m-%d')
+
+    if listDate < startDate:
+        symFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
+
 
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
@@ -230,3 +243,4 @@ for index in range(0, symFrame.shape[0]):
         finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
 
 finalFrame.to_csv('Selected_stocks.csv')
+'''
