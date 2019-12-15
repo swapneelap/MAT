@@ -221,16 +221,14 @@ endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
 fileOpen = pd.read_csv('NSE.csv')
-print(fileOpen.SERIES)
-'''
-symFrame = pd.DataFrame([], columns=['SYMBOL'])
+symFrame = pd.DataFrame()
 for index in range(0, fileOpen.shape[0]):
-    RAWlistDate = dt.datetime.strptime(fileOpen[index, 'DATE OF LISTING'], '%d-%b-%Y')
+    RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
+    listDate = dt.datetime.strptime(listDate, '%Y-%m-%d')
 
-    if listDate < startDate:
-        symFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
-
+    if startDate > listDate:
+        symFrame = symFrame.append({'SYMBOL':fileOpen.at[index, 'SYMBOL']}, ignore_index=True)
 
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
@@ -240,7 +238,6 @@ finalFrame = pd.DataFrame([], columns=['SYMBOL'])
 for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
     if BUY(symFrame.at[index, 'SYMBOL']):
-        finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
+        finalFrame = finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
 
 finalFrame.to_csv('Selected_stocks.csv')
-'''
