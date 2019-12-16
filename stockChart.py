@@ -252,7 +252,7 @@ cid =  plt.connect('motion_notify_event', cursor.mouse_move)
 
 axs[2].plot(dataFrame['Date'], dataFrame['MACD'], 'b', dataFrame['Date'], dataFrame['MACDsignal'], 'r--', dataFrame['Date'], [0] * dataFrame.shape[0], 'k')
 axs[2].legend(['MACD', 'Signal'])
-axs[2].bar(dataFrame['Date'], dataFrame['MACDsignalDiff'], color='orange')
+axs[2].bar(dataFrame['Date'], dataFrame['MACDsignalDiff'], color='green')
 axs[2].grid(True, linestyle='--')
 
 plt.xlim(dataFrame.at[0, 'Date'], dataFrame.at[dataFrame.shape[0]-1, 'Date'])
