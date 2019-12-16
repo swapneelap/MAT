@@ -36,7 +36,7 @@ class SnaptoCursor(object):
         self.ly.set_xdata(x)
         self.marker.set_data([x],[y])
         self.txt.set_text(math.trunc(y))
-        self.txt.set_position((x+dt.timedelta(days=5), y+10))
+        self.txt.set_position((x+dt.timedelta(days=5), y))
         self.ax.figure.canvas.draw_idle()
 
 
