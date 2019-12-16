@@ -236,4 +236,5 @@ for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
     BUY(symFrame.at[index, 'SYMBOL'])
 
+finalFrame.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
 finalFrame.to_csv('Selected_stocks.csv')
