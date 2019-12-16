@@ -15,8 +15,8 @@ signalDays = 30
 strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
-
-
+finalFrame = pd.DataFrame()
+symFrame = pd.DataFrame()
 
 ################ FUNCTIONS ####################################
 
@@ -187,6 +187,7 @@ def RSI( frame ):
     return frame;
 
 def BUY( SYM ):
+    global finalFrame
     compnayName = SYM
     today = dt.datetime.today()
     endDate = today.strftime('%Y-%m-%d')
@@ -210,9 +211,7 @@ def BUY( SYM ):
     MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
     if currentMACDdiff > 0 and MACDdiffdiff > 0:
-        return True
-    else:
-        return False
+        finalFrame = finalFrame.append({'SYMBOL':SYM, 'MACD Signal Diff':currentMACDdiff, 'MSD Diff':MACDdiffdiff}, ignore_index=True)
 
 #######################################################################
 
@@ -221,7 +220,6 @@ endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
 fileOpen = pd.read_csv('NSE.csv')
-symFrame = pd.DataFrame()
 for index in range(0, fileOpen.shape[0]):
     RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
@@ -233,11 +231,9 @@ for index in range(0, fileOpen.shape[0]):
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
 
-finalFrame = pd.DataFrame([], columns=['SYMBOL'])
 
 for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
-    if BUY(symFrame.at[index, 'SYMBOL']):
-        finalFrame = finalFrame.append({'SYMBOL':symFrame.at[index, 'SYMBOL']}, ignore_index=True)
+    BUY(symFrame.at[index, 'SYMBOL'])
 
 finalFrame.to_csv('Selected_stocks.csv')
