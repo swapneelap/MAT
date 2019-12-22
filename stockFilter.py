@@ -186,6 +186,13 @@ def RSI( frame ):
 
     return frame;
 
+def SD200( frame ):
+    collection = np.array([])
+    for index in range(frame.shape[0]-200, frame.shape[0]):
+        collection = np.append(collection, [frame.at[index, 'Close']])
+    SD = np.std(collection)
+    return SD
+
 def BUY( SYM ):
     global finalFrame
     compnayName = SYM
@@ -206,13 +213,15 @@ def BUY( SYM ):
     dataFrame = HalfAverage(dataFrame)
     dataFrame = MACD(dataFrame)
 
+    SD = SD200(dataFrame)
+
     index = dataFrame.shape[0] - 1
     currentMACD = dataFrame.at[index, 'MACD']
     currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
     MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
     if currentMACDdiff > 0 and MACDdiffdiff > 0 and currentMACD > 0:
-        finalFrame = finalFrame.append({'SYMBOL':SYM, 'MACD Signal Diff':currentMACDdiff, 'MSD Diff':MACDdiffdiff}, ignore_index=True)
+        finalFrame = finalFrame.append({'SYMBOL':SYM, 'MACD Signal Diff':currentMACDdiff, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
 
 #######################################################################
 
@@ -237,5 +246,9 @@ for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
     BUY(symFrame.at[index, 'SYMBOL'])
 
-finalFrame.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
-finalFrame.to_csv('Selected_stocks.csv')
+#finalFrame.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
+finalFrame.sort_values(by=['STD'], inplace=True)
+final = final.reset_index(drop=True)
+toWrite = final.head(30)
+toWrite.sort_values(by=['MACD Signal Diff'], inplace=True, ascending=False)
+toWrite.to_csv('Selected_stocks.csv', index=False)
