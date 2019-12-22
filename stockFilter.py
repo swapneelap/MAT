@@ -248,7 +248,7 @@ for index in range(0, symFrame.shape[0]):
 
 #finalFrame.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
 finalFrame.sort_values(by=['STD'], inplace=True)
-final = final.reset_index(drop=True)
-toWrite = final.head(30)
+finalFrame = finalFrame.reset_index(drop=True)
+toWrite = finalFrame.head(30)
 toWrite.sort_values(by=['MACD Signal Diff'], inplace=True, ascending=False)
 toWrite.to_csv('Selected_stocks.csv', index=False)
