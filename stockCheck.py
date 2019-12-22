@@ -225,7 +225,7 @@ def StockCheck( SYM ):
 
 #######################################################################
 
-stockList = ['RSYSTEMS.NS', 'BIOFILCHEM.NS', 'PIONEEREMB.NS', 'PARABDRUGS.NS', 'GOKUL.NS', 'NHPC.NS', 'AMJLAND.NS', 'TATASTLBSL.NS']
+stockList = ['RSYSTEMS.NS', 'BIOFILCHEM.NS', 'PIONEEREMB.NS', 'PARABDRUGS.NS', 'GOKUL.NS', 'NHPC.NS', 'AMJLAND.NS', 'TATASTLBSL.NS', 'HINDALCO.NS', 'ABFRL.NS']
 
 for symbol in stockList:
     if StockCheck(symbol):
