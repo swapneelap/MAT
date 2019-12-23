@@ -227,6 +227,8 @@ def StockCheck( SYM ):
 
 stockList = ['RSYSTEMS.NS', 'BIOFILCHEM.NS', 'PIONEEREMB.NS', 'PARABDRUGS.NS', 'GOKUL.NS', 'NHPC.NS', 'AMJLAND.NS', 'TATASTLBSL.NS', 'HINDALCO.NS', 'ABFRL.NS']
 
+print("Today's date ", dt.datetime.today())
+
 for symbol in stockList:
     if StockCheck(symbol):
         print(symbol, 'Sell', sep='......')
