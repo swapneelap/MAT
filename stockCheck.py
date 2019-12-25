@@ -190,7 +190,7 @@ def RSI( frame ):
 def SD200( frame ):
     collection = np.array([])
     for index in range(frame.shape[0]-200, frame.shape[0]):
-        collection = np.append(collection, [frame.at[index, 'Close']])
+        collection = np.append(collection, [(frame.at[index, 'Close']-frame.at[(index-1), 'Close'])/frame.at[(index-1), 'Close']])
     SD = np.std(collection)
     return SD
 
