@@ -213,6 +213,22 @@ def RSI( frame ):
 
     return frame;
 
+def RelativeSTD( frame ):
+    zeros = [0.0]*frame.shape[0]
+    frame['Anomaly'] = zeros
+    days = 30
+    for index in range(days-1, frame.shape[0]):
+        STD = 0
+        group = np.array([])
+        for subindex in range(index-(days-1), index):
+            relativeDiff = (frame.at[subindex+1, 'Close']-frame.at[subindex, 'Close'])/frame.at[subindex, 'Close']
+            group = np.append(group, [relativeDiff])
+        STD = np.std(group)
+        relativeCloseDiff = (frame.at[index, 'Close'] - frame.at[index-1, 'Close'])/frame.at[index-1, 'Close']
+        if relativeCloseDiff < 0 and abs(relativeCloseDiff) > (2.0*STD):
+            frame.at[index, 'Anomaly'] = frame.at[index, 'Close']
+    return frame
+
 ###############################################################
 
 compnayName = input("Enter yfinance Symbol for the compnay: ")
@@ -233,6 +249,7 @@ dataFrame = HalfAverage(dataFrame)
 dataFrame = MACD(dataFrame)
 dataFrame = BollingerBands(dataFrame)
 dataFrame = RSI(dataFrame)
+dataFrame = RelativeSTD(dataFrame)
 
 fig, axs = plt.subplots(3, 1, sharex=True)
 fig.suptitle(compnayName, fontsize=12)
@@ -244,6 +261,7 @@ axs[0].legend(['Sell', 'Buy', 'RSI', 'RSI average'], loc='upper left')
 axs[0].grid(True, linestyle='--')
 
 axs[1].plot(dataFrame['Date'], dataFrame['Close'], dataFrame['Date'], dataFrame['UpperBand'], 'r--', dataFrame['Date'], dataFrame['LowerBand'], 'g--')
+axs[1].plot(dataFrame['Date'], dataFrame['Anomaly'], 'ro')
 axs[1].legend(['Close', 'Upper Bollinger band', 'Lower Bollinger band' ])
 axs[1].set_ylim([dataFrame['Close'].min(), dataFrame['UpperBand'].max()])
 axs[1].grid(True, linestyle='--')
