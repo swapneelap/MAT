@@ -18,7 +18,7 @@ RSIavgDays = 9
 RSImatureDays = 260
 finalFrame = pd.DataFrame()
 symFrame = pd.DataFrame()
-
+toWrite = pd.DataFrame()
 ################ FUNCTIONS ####################################
 
 def Flip( frame ):
@@ -190,7 +190,7 @@ def RSI( frame ):
 def SD200( frame ):
     collection = np.array([])
     for index in range(frame.shape[0]-200, frame.shape[0]):
-        collection = np.append(collection, [frame.at[index, 'Close']])
+        collection = np.append(collection, [(frame.at[index, 'Close']-frame.at[(index-1), 'Close'])/frame.at[(index-1), 'Close']])
     SD = np.std(collection)
     return SD
 
@@ -247,9 +247,10 @@ for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
     BUY(symFrame.at[index, 'SYMBOL'])
 
-#finalFrame.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
-toWrite = finalFrame.head(30)
-toWrite.sort_values(by=['MACD Signal Diff'], inplace=True, ascending=False)
+for index in range(0,30):
+    toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'MACD Signal Diff':finalFrame.at[index, 'MACD Signal Diff'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
+
+toWrite.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
 toWrite.to_csv('Selected_stocks.csv', index=False)
