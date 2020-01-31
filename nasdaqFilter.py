@@ -229,7 +229,7 @@ def BUY( SYM ):
 today = dt.datetime.today()
 endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
-
+'''
 fileOpen = pd.read_csv('NSE.csv')
 for index in range(0, fileOpen.shape[0]):
     RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
@@ -241,11 +241,13 @@ for index in range(0, fileOpen.shape[0]):
 
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
-
+'''
+symFrame = pd.read_csv('./nasdaqlisted_test.txt', sep='|', names=('SYMBOL', 'CNAME', 'CATAGORY', 'TEST', 'FSTATUS', 'RLSIZE', 'ETF', 'NEXTS'))
 
 for index in range(0, symFrame.shape[0]):
-    print("Processing...", symFrame.at[index, 'SYMBOL'])
-    BUY(symFrame.at[index, 'SYMBOL'])
+    if symFrame.at[index, 'TEST'] == 'N' and symFrame.at[index, 'ETF'] == 'N':
+        print("Processing...", symFrame.at[index, 'SYMBOL'])
+        BUY(symFrame.at[index, 'SYMBOL'])
 
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
