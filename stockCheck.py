@@ -212,25 +212,29 @@ def StockCheck( SYM ):
     dataFrame = FullAverage(dataFrame)
     dataFrame = HalfAverage(dataFrame)
     dataFrame = MACD(dataFrame)
+    dataFrame = RSI(dataFrame)
 
     index = dataFrame.shape[0] - 1
 #    currentMACD = dataFrame.at[index, 'MACD']
-    currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
-#    MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+#    currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
+    diff_1 = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+    diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
+    diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
+    currentRSI = dataFrame.at[index, 'RSI']
 
-    if currentMACDdiff < 0:
-        return True
+    if currentRSI >= 60:
+        return ("Stock in high momentum witn RSI " + str(currentRSI))
     else:
-        return False
+        if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
+            return "The stock has lost the momentum"
+        else:
+            return "Hold the stock"
 
 #######################################################################
 
-stockList = ['RSYSTEMS.NS', 'BIOFILCHEM.NS', 'PIONEEREMB.NS', 'PARABDRUGS.NS', 'GOKUL.NS', 'NHPC.NS', 'AMJLAND.NS', 'TATASTLBSL.NS', 'HINDALCO.NS', 'ABFRL.NS', 'PONNIERODE.NS']
+stockList = ['ASIANPAINT.NS', 'SUPREMEIND.NS', 'HDFCBANK.NS', 'MINDTREE.NS']
 
 print("Today's date ", dt.datetime.today())
 
 for symbol in stockList:
-    if StockCheck(symbol):
-        print(symbol, 'Sell', sep='......')
-    else:
-        print(symbol, 'Keep', sep='......')
+    print(symbol + "....." + StockCheck(symbol))
