@@ -220,10 +220,10 @@ def StockCheck( SYM ):
     diff_1 = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
     diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
     diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
-    currentRSI = dataFrame.at[index, 'RSI']
+    currentRSIavg = dataFrame.at[index, 'RSIavg']
 
-    if currentRSI >= 60:
-        return ("Stock in high momentum witn RSI " + str(currentRSI))
+    if currentRSIavg >= 60:
+        return ("Stock in high momentum witn RSIavg " + str(currentRSIavg))
     else:
         if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
             return "The stock has lost the momentum"
@@ -237,4 +237,4 @@ stockList = ['ASIANPAINT.NS', 'SUPREMEIND.NS', 'HDFCBANK.NS', 'MINDTREE.NS']
 print("Today's date ", dt.datetime.today())
 
 for symbol in stockList:
-    print(symbol + "....." + StockCheck(symbol))
+    print(symbol + " ..... " + StockCheck(symbol))
