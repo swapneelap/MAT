@@ -250,7 +250,7 @@ def StockCheck( SYM ):
         if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
             return ("The stock has lost the momentum" + anomalyEvent)
         else:
-            return ("Hold the stock" + anomalyEvent)
+            return ("Stock in momentum" + anomalyEvent)
 
 #######################################################################
 
