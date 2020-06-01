@@ -194,6 +194,22 @@ def SD200( frame ):
     SD = np.std(collection)
     return SD
 
+def RelativeSTD( frame ):
+    zeros = [0.0]*frame.shape[0]
+    frame['Anomaly'] = zeros
+    days = 30
+    for index in range(days-1, frame.shape[0]):
+        STD = 0
+        group = np.array([])
+        for subindex in range(index-(days-1), index):
+            relativeDiff = (frame.at[subindex+1, 'Close']-frame.at[subindex, 'Close'])/frame.at[subindex, 'Close']
+            group = np.append(group, [relativeDiff])
+        STD = np.std(group)
+        relativeCloseDiff = (frame.at[index, 'Close'] - frame.at[index-1, 'Close'])/frame.at[index-1, 'Close']
+        if relativeCloseDiff < 0 and abs(relativeCloseDiff) > (2.0*STD):
+            frame.at[index, 'Anomaly'] = frame.at[index, 'Close']
+    return frame
+
 def StockCheck( SYM ):
     compnayName = SYM
     today = dt.datetime.today()
@@ -213,6 +229,7 @@ def StockCheck( SYM ):
     dataFrame = HalfAverage(dataFrame)
     dataFrame = MACD(dataFrame)
     dataFrame = RSI(dataFrame)
+    dataFrame = RelativeSTD(dataFrame)
 
     index = dataFrame.shape[0] - 1
 #    currentMACD = dataFrame.at[index, 'MACD']
@@ -221,14 +238,19 @@ def StockCheck( SYM ):
     diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
     diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
     currentRSIavg = dataFrame.at[index, 'RSIavg']
+    twoDelta = dataFrame.at[index, 'Anomaly']
+
+    anomalyEvent = ""
+    if twoDelta > 0:
+        anomalyEvent = " and a two delta event happened today."
 
     if currentRSIavg >= 60:
-        return ("Stock in high momentum witn RSIavg " + str(currentRSIavg))
+        return ("Stock in high momentum witn RSIavg " + str(currentRSIavg) + anomalyEvent)
     else:
         if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
-            return "The stock has lost the momentum"
+            return ("The stock has lost the momentum" + anomalyEvent)
         else:
-            return "Hold the stock"
+            return ("Hold the stock" + anomalyEvent)
 
 #######################################################################
 
