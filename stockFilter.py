@@ -250,7 +250,7 @@ for index in range(0, symFrame.shape[0]):
 
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
-for index in range(0, 30):
+for index in range(0, finalFrame.shape[0]):
     toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MACD Signal Diff':finalFrame.at[index, 'MACD Signal Diff'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
 
 #toWrite.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
