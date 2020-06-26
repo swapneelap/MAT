@@ -237,20 +237,20 @@ def StockCheck( SYM ):
     diff_1 = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
     diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
     diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
-    currentRSIavg = dataFrame.at[index, 'RSIavg']
+    currentRSI = dataFrame.at[index, 'RSI']
     twoDelta = dataFrame.at[index, 'Anomaly']
 
     anomalyEvent = ""
     if twoDelta > 0:
         anomalyEvent = " and a two delta event happened today."
 
-    if currentRSIavg >= 60:
-        return ("Stock in high momentum witn RSIavg " + str(currentRSIavg) + anomalyEvent)
+    if currentRSI >= 60:
+        return ("Stock in high momentum witn RSI " + str(currentRSI) + anomalyEvent)
     else:
         if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
-            return ("The stock has lost the momentum" + anomalyEvent)
+            return ("The stock has lost the momentum with RSI " + str(currentRSI) + anomalyEvent)
         else:
-            return ("Stock in momentum" + anomalyEvent)
+            return ("Stock in momentum with RSI " + str(currentRSI) + anomalyEvent)
 
 #######################################################################
 
