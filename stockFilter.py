@@ -222,7 +222,7 @@ def BUY( SYM ):
     currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
     MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-    if currentMACDdiff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD < 0:
+    if currentMACDdiff < 0 and MACDdiffdiff > 0 and closePrice > 100: #and currentMACD < 0:
         finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MACD Signal Diff':currentMACDdiff, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
 
 #######################################################################
