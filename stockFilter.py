@@ -224,7 +224,7 @@ def BUY( SYM ):
     MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
     if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
-        finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MACD Signal Diff':currentMACDdiff, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
+        finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
 
 #######################################################################
 
@@ -252,7 +252,6 @@ for index in range(0, symFrame.shape[0]):
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
 for index in range(0, finalFrame.shape[0]):
-    toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MACD Signal Diff':finalFrame.at[index, 'MACD Signal Diff'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
+    toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
 
-#toWrite.sort_values(by=['MSD Diff'], inplace=True, ascending=False)
 toWrite.to_csv('Selected_stocks.csv', index=False)
