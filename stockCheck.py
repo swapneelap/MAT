@@ -233,7 +233,7 @@ def StockCheck( SYM ):
 
     index = dataFrame.shape[0] - 1
 #    currentMACD = dataFrame.at[index, 'MACD']
-#    currentMACDdiff = dataFrame.at[index, 'MACDsignalDiff']
+    currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
     diff_1 = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
     diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
     diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
@@ -247,7 +247,7 @@ def StockCheck( SYM ):
     if currentRSI >= 60:
         return ("Stock in high momentum witn RSI " + str(currentRSI) + anomalyEvent)
     else:
-        if diff_1 <= 0 and diff_2 <= 0 and diff_3 <= 0:
+        if diff_1 < 0 and diff_2 < 0 and diff_3 < 0 and currentMACD_diff < 0:
             return ("The stock has lost the momentum with RSI " + str(currentRSI) + anomalyEvent)
         else:
             return ("Stock in momentum with RSI " + str(currentRSI) + anomalyEvent)
