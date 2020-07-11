@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from pandas_datareader import data as pdr
+from pandas_datareader._utils import RemoteDataError
 import yfinance as yf
 import math
 import numpy as np
@@ -247,7 +248,11 @@ for index in range(0, symFrame.shape[0]):
 
 for index in range(0, symFrame.shape[0]):
     print("Processing...", symFrame.at[index, 'SYMBOL'])
-    BUY(symFrame.at[index, 'SYMBOL'])
+    try:
+        BUY(symFrame.at[index, 'SYMBOL'])
+    except (KeyError,RemoteDataError):
+        print("ERROR: Could not process ", symFrame.at[index, 'SYMBOL'])
+        continue
 
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
