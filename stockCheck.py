@@ -254,7 +254,7 @@ def StockCheck( SYM ):
 
 #######################################################################
 
-stockList = ['NAVINFLUOR.NS', 'RAJESHEXPO.NS', 'RELAXO.NS', 'DEEPAKNTR.NS', 'PIIND.NS']
+stockList = ['NAVINFLUOR.NS', 'RAJESHEXPO.NS', 'DEEPAKNTR.NS', 'PIIND.NS']
 
 print("Today's date ", dt.datetime.today())
 
