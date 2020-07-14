@@ -5,10 +5,6 @@ import math
 import numpy as np
 import datetime as dt
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
 
 daysFullAvg = 200
 daysHalfAvg = 50
@@ -238,11 +234,20 @@ def StockCheck( SYM ):
     diff_2 = dataFrame.at[index-1, 'MACDsignalDiff'] - dataFrame.at[index-2, 'MACDsignalDiff']
     diff_3 = dataFrame.at[index-2, 'MACDsignalDiff'] - dataFrame.at[index-3, 'MACDsignalDiff']
     currentRSI = dataFrame.at[index, 'RSI']
-    twoDelta = dataFrame.at[index, 'Anomaly']
+    twoDelta_today = dataFrame.at[index, 'Anomaly']
+    twoDelta_yesterday = dataFrame.at[index-1, 'Anomaly']
+    twoDelta_dayByesterday = dataFrame.at[index-2, 'Anomaly']
+    twoDelta_dayBByesterday = dataFrame.at[index-3, 'Anomaly']
 
     anomalyEvent = ""
-    if twoDelta > 0:
+    if twoDelta_today > 0:
         anomalyEvent = " and a two delta event happened today."
+    elif twoDelta_yesterday > 0:
+        anomalyEvent = " and a two delta event happened yesterday."
+    elif twoDelta_dayByesterday > 0:
+        anomalyEvent = " and a two delta event happened day before yesterday."
+    elif twoDelta_dayBByesterday > 0:
+        anomalyEvent = " and a two delta event happened two days before yesterday."
 
     if currentRSI >= 60:
         return ("Stock in high momentum witn RSI " + str(currentRSI) + anomalyEvent)
