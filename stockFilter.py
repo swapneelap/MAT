@@ -6,10 +6,7 @@ import math
 import numpy as np
 import datetime as dt
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
+import multiprocessing
 
 daysFullAvg = 200
 daysHalfAvg = 50
@@ -196,36 +193,41 @@ def SD200( frame ):
     return SD
 
 def BUY( SYM ):
-    global finalFrame
-    compnayName = SYM
-    today = dt.datetime.today()
-    endDate = today.strftime('%Y-%m-%d')
-    startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
+    print("Processing...", SYM)
+    try:
+        global finalFrame
+        compnayName = SYM
+        today = dt.datetime.today()
+        endDate = today.strftime('%Y-%m-%d')
+        startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
-    rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
-    dataFrame = pd.DataFrame(rawData, columns=["Close"])
-    dataFrame.reset_index(level=['Date'], inplace=True)
-    dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
+        rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
+        dataFrame = pd.DataFrame(rawData, columns=["Close"])
+        dataFrame.reset_index(level=['Date'], inplace=True)
+        dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
-    dataFrame = Flip(dataFrame)
-    dataFrame = DropNAN(dataFrame)
-    dataFrame = DataRefining(dataFrame)
+        dataFrame = Flip(dataFrame)
+        dataFrame = DropNAN(dataFrame)
+        dataFrame = DataRefining(dataFrame)
 
-    dataFrame = FullAverage(dataFrame)
-    dataFrame = HalfAverage(dataFrame)
-    dataFrame = MACD(dataFrame)
+        dataFrame = FullAverage(dataFrame)
+        dataFrame = HalfAverage(dataFrame)
+        dataFrame = MACD(dataFrame)
 
-    SD = SD200(dataFrame)
+        SD = SD200(dataFrame)
 
-    index = dataFrame.shape[0] - 1
-    closePrice = dataFrame.at[index, 'Close']
-    currentMACD = dataFrame.at[index, 'MACD']
-    currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
-    currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
-    MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+        index = dataFrame.shape[0] - 1
+        closePrice = dataFrame.at[index, 'Close']
+        currentMACD = dataFrame.at[index, 'MACD']
+        currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
+        currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
+        MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-    if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
-        finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
+        if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
+            finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
+
+    except (KeyError,RemoteDataError):
+        print("Could not process ", SYM)
 
 #######################################################################
 
@@ -246,13 +248,21 @@ for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
 
 
-for index in range(0, symFrame.shape[0]):
-    print("Processing...", symFrame.at[index, 'SYMBOL'])
-    try:
-        BUY(symFrame.at[index, 'SYMBOL'])
-    except (KeyError,RemoteDataError):
-        print("ERROR: Could not process ", symFrame.at[index, 'SYMBOL'])
-        continue
+if __name__ == "__main__":
+    sym_list = symFrame['SYMBOL']
+    p = multiprocessing.Pool()
+    p.map(BUY, sym_list)
+
+
+
+
+#for index in range(0, symFrame.shape[0]):
+#    print("Processing...", symFrame.at[index, 'SYMBOL'])
+#    try:
+#        BUY(symFrame.at[index, 'SYMBOL'])
+#    except (KeyError,RemoteDataError):
+#        print("ERROR: Could not process ", symFrame.at[index, 'SYMBOL'])
+#        continue
 
 finalFrame.sort_values(by=['STD'], inplace=True)
 finalFrame = finalFrame.reset_index(drop=True)
