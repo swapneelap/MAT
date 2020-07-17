@@ -14,7 +14,7 @@ signalDays = 30
 strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
-finalFrame = pd.DataFrame()
+
 symFrame = pd.DataFrame()
 toWrite = pd.DataFrame()
 ################ FUNCTIONS ####################################
@@ -249,12 +249,13 @@ for index in range(0, symFrame.shape[0]):
 
 
 if __name__ == "__main__":
+    finalFrame = pd.DataFrame()
     sym_list = symFrame['SYMBOL']
     p = multiprocessing.Pool()
     p.map(BUY, sym_list)
-    finalFrame.sort_values(by=['STD'], inplace=True)
-    finalFrame = finalFrame.reset_index(drop=True)
-    for index in range(0, finalFrame.shape[0]):
-        toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
+#    finalFrame.sort_values(by=['STD'], inplace=True)
+#    finalFrame = finalFrame.reset_index(drop=True)
+#    for index in range(0, finalFrame.shape[0]):
+#        toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
 
-    toWrite.to_csv('Selected_stocks.csv', index=False)
+    finalFrame.to_csv('Selected_stocks.csv', index=False)
