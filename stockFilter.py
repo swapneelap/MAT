@@ -15,7 +15,6 @@ strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
 symFrame = pd.DataFrame()
-toWrite = pd.DataFrame()
 ################ FUNCTIONS ####################################
 
 def Flip( frame ):
@@ -277,3 +276,4 @@ if __name__ == '__main__':
             process_dict["Process_"+str(itr)].join()
 
         toWrite = pd.DataFrame(good_stocks,columns=['Symbol', 'Close', 'MACD_diffdiff', 'SD'])
+        toWrite.to_csv("Selected_stocks.csv", index=False)
