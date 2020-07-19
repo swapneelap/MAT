@@ -14,7 +14,6 @@ signalDays = 30
 strengthDays = 14
 RSIavgDays = 9
 RSImatureDays = 260
-finalFrame = pd.DataFrame()
 symFrame = pd.DataFrame()
 toWrite = pd.DataFrame()
 ################ FUNCTIONS ####################################
@@ -277,15 +276,4 @@ if __name__ == '__main__':
         for itr in range(0,cpus):
             process_dict["Process_"+str(itr)].join()
 
-        print(good_stocks)
-
-
-
-
-
-
-
-
-
-
-
+        toWrite = pd.DataFrame(good_stocks,columns=['Symbol', 'Close', 'MACD_diffdiff', 'SD'])
