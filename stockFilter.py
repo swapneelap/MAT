@@ -192,42 +192,44 @@ def SD200( frame ):
     SD = np.std(collection)
     return SD
 
-def BUY( SYM ):
-    print("Processing...", SYM)
-    try:
-        global finalFrame
-        compnayName = SYM
-        today = dt.datetime.today()
-        endDate = today.strftime('%Y-%m-%d')
-        startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
+def BUY( stock_list_in,stock_list_out,lock ):
+    for SYM in stock_list_in:
+        print("Processing...", SYM)
+        try:
+            compnayName = SYM
+            today = dt.datetime.today()
+            endDate = today.strftime('%Y-%m-%d')
+            startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
-        rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
-        dataFrame = pd.DataFrame(rawData, columns=["Close"])
-        dataFrame.reset_index(level=['Date'], inplace=True)
-        dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
+            rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
+            dataFrame = pd.DataFrame(rawData, columns=["Close"])
+            dataFrame.reset_index(level=['Date'], inplace=True)
+            dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
-        dataFrame = Flip(dataFrame)
-        dataFrame = DropNAN(dataFrame)
-        dataFrame = DataRefining(dataFrame)
+            dataFrame = Flip(dataFrame)
+            dataFrame = DropNAN(dataFrame)
+            dataFrame = DataRefining(dataFrame)
 
-        dataFrame = FullAverage(dataFrame)
-        dataFrame = HalfAverage(dataFrame)
-        dataFrame = MACD(dataFrame)
+            dataFrame = FullAverage(dataFrame)
+            dataFrame = HalfAverage(dataFrame)
+            dataFrame = MACD(dataFrame)
 
-        SD = SD200(dataFrame)
+            SD = SD200(dataFrame)
 
-        index = dataFrame.shape[0] - 1
-        closePrice = dataFrame.at[index, 'Close']
-        currentMACD = dataFrame.at[index, 'MACD']
-        currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
-        currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
-        MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+            index = dataFrame.shape[0] - 1
+            closePrice = dataFrame.at[index, 'Close']
+            currentMACD = dataFrame.at[index, 'MACD']
+            currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
+            currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
+            MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-        if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
-            finalFrame = finalFrame.append({'SYMBOL':SYM, 'Close':closePrice, 'MSD Diff':MACDdiffdiff, 'STD':SD}, ignore_index=True)
+            if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
+                lock.acquire()
+                stock_list_out.append((SYM, closePrice, MACDdiffdiff, SD))
+                lock.release()
 
-    except (KeyError,RemoteDataError):
-        print("Could not process ", SYM)
+        except (KeyError,RemoteDataError):
+            print("Could not process ", SYM)
 
 #######################################################################
 
@@ -247,15 +249,32 @@ for index in range(0, fileOpen.shape[0]):
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
 
+cpus = multiprocessing.cpu_count()
+division = math.floor(symFrame.shape[0]/cpus)
+stock_divisions = dict()
 
-if __name__ == "__main__":
-    finalFrame = pd.DataFrame()
-    sym_list = symFrame['SYMBOL']
-    p = multiprocessing.Pool()
-    p.map(BUY, sym_list)
-#    finalFrame.sort_values(by=['STD'], inplace=True)
-#    finalFrame = finalFrame.reset_index(drop=True)
-#    for index in range(0, finalFrame.shape[0]):
-#        toWrite = toWrite.append({'SYMBOL':finalFrame.at[index, 'SYMBOL'], 'Close':finalFrame.at[index, 'Close'], 'MSD Diff':finalFrame.at[index, 'MSD Diff'], 'STD':finalFrame.at[index, 'STD']}, ignore_index=True)
+for itr in range(0,cpus):
+    stock_collection = list()
+    if itr != (cpus-1):
+        for index in range((itr*division),((itr+1)*division)):
+            stock_collection.append(symFrame.at[index, 'SYMBOL'])
+    else:
+        for index in range((itr*division), symFrame.shape[0]):
+            stock_collection.append(symFrame.at[index, 'SYMBOL'])
+    stock_divisions["Batch_"+str(itr)] = stock_collection
 
-    finalFrame.to_csv('Selected_stocks.csv', index=False)
+if __name__ == '__main__':
+    with multiprocessing.Manager() as manager:
+        good_stocks = manager.list()
+        lock = multiprocessing.Lock()
+        process_dict = dict()
+        for itr in range(0,cpus):
+            process_dict["Process_"+str(itr)] = multiprocessing.Process(target=BUY, args=(stock_divisions["Batch_"+str(itr)],good_stocks,lock))
+
+        for itr in range(0,cpus):
+            process_dict["Process_"+str(itr)].start()
+
+        for itr in range(0,cpus):
+            process_dict["Process_"+str(itr)].join()
+
+        print(good_stocks)
