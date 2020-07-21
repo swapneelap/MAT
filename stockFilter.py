@@ -223,7 +223,7 @@ def BUY( stock_list_in,stock_list_out,lock ):
 
             if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
                 lock.acquire()
-                stock_list_out.append((SYM, closePrice, MACDdiffdiff, SD))
+                stock_list_out.append([SYM,closePrice,MACDdiffdiff,SD])
                 lock.release()
 
         except (KeyError,RemoteDataError):
@@ -236,7 +236,7 @@ endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
 fileOpen = pd.read_csv('NSE.csv')
-for index in range(0, fileOpen.shape[0]):
+for index in range(0, 21):
     RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
     listDate = dt.datetime.strptime(listDate, '%Y-%m-%d')
@@ -275,5 +275,7 @@ if __name__ == '__main__':
         for itr in range(0,cpus):
             process_dict["Process_"+str(itr)].join()
 
-        toWrite = pd.DataFrame(good_stocks,columns=['Symbol', 'Close', 'MACD_diffdiff', 'SD'])
+        write_list = list(good_stocks)
+
+        toWrite = pd.DataFrame(write_list,columns=['Symbol', 'Close', 'MACD_diffdiff', 'SD'])
         toWrite.to_csv("Selected_stocks.csv", index=False)
