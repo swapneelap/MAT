@@ -247,9 +247,13 @@ for index in range(0, fileOpen.shape[0]):
 for index in range(0, symFrame.shape[0]):
     symFrame.at[index, 'SYMBOL'] = symFrame.at[index, 'SYMBOL'] + '.NS'
 
+total_stocks = symFrame.shape[0]
+
 cpus = multiprocessing.cpu_count()
 division = math.floor(symFrame.shape[0]/cpus)
 stock_divisions = dict()
+
+stock_count = 0
 
 for itr in range(0,cpus):
     stock_collection = list()
@@ -260,6 +264,12 @@ for itr in range(0,cpus):
         for index in range((itr*division), symFrame.shape[0]):
             stock_collection.append(symFrame.at[index, 'SYMBOL'])
     stock_divisions["Batch_"+str(itr)] = stock_collection
+
+    stock_count = stock_count + len(stock_collection)
+
+if stock_count != total_stocks:
+    print("The stocks were not devided properly...")
+    quit()
 
 if __name__ == '__main__':
     with multiprocessing.Manager() as manager:
