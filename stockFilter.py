@@ -8,6 +8,8 @@ import datetime as dt
 import pandas as pd
 import multiprocessing
 
+yf.pdr_override()
+
 daysFullAvg = 200
 daysHalfAvg = 50
 signalDays = 30
@@ -236,7 +238,7 @@ endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
 fileOpen = pd.read_csv('NSE.csv')
-for index in range(0, 21):
+for index in range(0, fileOpen.shape[0]):
     RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
     listDate = dt.datetime.strptime(listDate, '%Y-%m-%d')
