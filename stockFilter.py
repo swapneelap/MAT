@@ -8,6 +8,8 @@ import datetime as dt
 import pandas as pd
 import multiprocessing
 
+yf.pdr_override()
+
 daysFullAvg = 200
 daysHalfAvg = 50
 signalDays = 30
