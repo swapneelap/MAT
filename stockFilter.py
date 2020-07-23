@@ -1,6 +1,4 @@
-#!/usr/bin/python3
-from pandas_datareader import data as pdr
-from pandas_datareader._utils import RemoteDataError
+#!/usr/bin/env python3
 import yfinance as yf
 import math
 import numpy as np
@@ -8,7 +6,6 @@ import datetime as dt
 import pandas as pd
 import multiprocessing
 
-yf.pdr_override()
 
 daysFullAvg = 200
 daysHalfAvg = 50
@@ -195,41 +192,40 @@ def SD200( frame ):
 def BUY( stock_list_in,stock_list_out,lock ):
     for SYM in stock_list_in:
         print("Processing...", SYM)
-        try:
-            compnayName = SYM
-            today = dt.datetime.today()
-            endDate = today.strftime('%Y-%m-%d')
-            startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
-            rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
-            dataFrame = pd.DataFrame(rawData, columns=["Close"])
-            dataFrame.reset_index(level=['Date'], inplace=True)
-            dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
+        compnayName = SYM
+        compnayTicker = yf.Ticker(SYM)
+        rawData = compnayTicker.history(period="2y")
+#       today = dt.datetime.today()
+#       endDate = today.strftime('%Y-%m-%d')
+#       startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
 
-            dataFrame = Flip(dataFrame)
-            dataFrame = DropNAN(dataFrame)
-            dataFrame = DataRefining(dataFrame)
+#       rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
+        dataFrame = pd.DataFrame(rawData, columns=["Close"])
+        dataFrame.reset_index(level=['Date'], inplace=True)
+        dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
-            dataFrame = FullAverage(dataFrame)
-            dataFrame = HalfAverage(dataFrame)
-            dataFrame = MACD(dataFrame)
+#       dataFrame = Flip(dataFrame)
+#       dataFrame = DropNAN(dataFrame)
+        dataFrame = DataRefining(dataFrame)
 
-            SD = SD200(dataFrame)
+        dataFrame = FullAverage(dataFrame)
+        dataFrame = HalfAverage(dataFrame)
+        dataFrame = MACD(dataFrame)
 
-            index = dataFrame.shape[0] - 1
-            closePrice = dataFrame.at[index, 'Close']
-            currentMACD = dataFrame.at[index, 'MACD']
-            currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
-            currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
-            MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+        SD = SD200(dataFrame)
 
-            if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
-                lock.acquire()
-                stock_list_out.append([SYM,closePrice,MACDdiffdiff,SD])
-                lock.release()
+        index = dataFrame.shape[0] - 1
+        closePrice = dataFrame.at[index, 'Close']
+        currentMACD = dataFrame.at[index, 'MACD']
+        currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
+        currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
+        MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
 
-        except (KeyError,RemoteDataError):
-            print("Could not process ", SYM)
+        if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
+            lock.acquire()
+            stock_list_out.append([SYM,closePrice,MACDdiffdiff,SD])
+            lock.release()
 
 #######################################################################
 
