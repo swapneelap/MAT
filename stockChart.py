@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-from pandas_datareader import data as pdr
+#!/usr/bin/env python3
 import yfinance as yf
 import math
 import numpy as np
@@ -7,8 +6,6 @@ import datetime as dt
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
 
 daysFullAvg = 200
 daysHalfAvg = 50
@@ -235,13 +232,13 @@ compnayName = input("Enter yfinance Symbol for the compnay: ")
 startDate = input("Enter the start date as yyyy-mm-dd: ")
 endDate = input("Enter the end date as yyyy-mm-dd: ")
 
-rawData = pdr.get_data_yahoo(compnayName, start=startDate, end=endDate)
+compnayTicker = yf.Ticker(compnayName)
+rawData = compnayTicker.history(start=startDate, end=endDate)
 dataFrame = pd.DataFrame(rawData, columns=["Close"])
 dataFrame.reset_index(level=['Date'], inplace=True)
 dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
-dataFrame = Flip(dataFrame)
-dataFrame = DropNAN(dataFrame)
+
 dataFrame = DataRefining(dataFrame)
 
 dataFrame = FullAverage(dataFrame)
