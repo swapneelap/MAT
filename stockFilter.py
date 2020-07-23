@@ -207,7 +207,7 @@ def BUY( stock_list_in,stock_list_out,lock ):
 
 #       dataFrame = Flip(dataFrame)
 #       dataFrame = DropNAN(dataFrame)
-        dataFrame = DataRefining(dataFrame)
+#       dataFrame = DataRefining(dataFrame)
 
         dataFrame = FullAverage(dataFrame)
         dataFrame = HalfAverage(dataFrame)
@@ -231,9 +231,9 @@ def BUY( stock_list_in,stock_list_out,lock ):
 
 today = dt.datetime.today()
 endDate = today.strftime('%Y-%m-%d')
-startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=1900)
+startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=800)
 
-fileOpen = pd.read_csv('NSE.csv')
+fileOpen = pd.read_csv('NSE_new.csv')
 for index in range(0, fileOpen.shape[0]):
     RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
