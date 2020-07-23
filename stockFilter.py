@@ -248,8 +248,8 @@ for index in range(0, symFrame.shape[0]):
 
 total_stocks = symFrame.shape[0]
 
-#cpus = multiprocessing.cpu_count()
-cpus=4
+cpus = multiprocessing.cpu_count()
+#cpus=4
 division = math.floor(symFrame.shape[0]/cpus)
 stock_divisions = dict()
 
