@@ -235,11 +235,12 @@ startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=800)
 
 fileOpen = pd.read_csv('NSE_new.csv')
 for index in range(0, fileOpen.shape[0]):
-    RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' LISTING'], '%d-%b-%Y')
+    RAWlistDate = dt.datetime.strptime(fileOpen.at[index, ' DATE OF LISTING'], '%d-%b-%Y')
     listDate = RAWlistDate.strftime('%Y-%m-%d')
     listDate = dt.datetime.strptime(listDate, '%Y-%m-%d')
+    series = fileOpen.at[index, ' SERIES']
 
-    if startDate > listDate:
+    if startDate > listDate and series == "EQ":
         symFrame = symFrame.append({'SYMBOL':fileOpen.at[index, 'SYMBOL']}, ignore_index=True)
 
 for index in range(0, symFrame.shape[0]):
@@ -247,7 +248,8 @@ for index in range(0, symFrame.shape[0]):
 
 total_stocks = symFrame.shape[0]
 
-cpus = multiprocessing.cpu_count()
+#cpus = multiprocessing.cpu_count()
+cpus=4
 division = math.floor(symFrame.shape[0]/cpus)
 stock_divisions = dict()
 
