@@ -239,7 +239,7 @@ dataFrame.reset_index(level=['Date'], inplace=True)
 dataFrame.Date = pd.to_datetime(dataFrame.Date, format='%Y-%m-%d')
 
 
-dataFrame = DataRefining(dataFrame)
+#dataFrame = DataRefining(dataFrame)
 
 dataFrame = FullAverage(dataFrame)
 dataFrame = HalfAverage(dataFrame)
