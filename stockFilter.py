@@ -193,6 +193,7 @@ def BUY( stock_list_in,stock_list_out,lock ):
     for SYM in stock_list_in:
         print("Processing...", SYM)
 
+        goodCounter = 0
         compnayName = SYM
         compnayTicker = yf.Ticker(SYM)
         rawData = compnayTicker.history(period="2y")
@@ -215,14 +216,17 @@ def BUY( stock_list_in,stock_list_out,lock ):
 
         SD = SD200(dataFrame)
 
-        index = dataFrame.shape[0] - 1
-        closePrice = dataFrame.at[index, 'Close']
-        currentMACD = dataFrame.at[index, 'MACD']
-        currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
-        currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
-        MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+        for itr in range(1,6):
+            index = dataFrame.shape[0] - itr
+            closePrice = dataFrame.at[index, 'Close']
+            currentMACD = dataFrame.at[index, 'MACD']
+            currentMACD_diff = dataFrame.at[index, 'MACD'] - dataFrame.at[index-1, 'MACD']
+            currentMACD_signal_diff = dataFrame.at[index, 'MACDsignalDiff']
+            MACDdiffdiff = dataFrame.at[index, 'MACDsignalDiff'] - dataFrame.at[index-1, 'MACDsignalDiff']
+            if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
+                goodCounter = goodCounter + 1
 
-        if currentMACD_signal_diff < 0 and MACDdiffdiff > 0 and closePrice > 100 and currentMACD_diff > 0:
+        if goodCounter == 5:
             lock.acquire()
             stock_list_out.append([SYM,closePrice,MACDdiffdiff,SD])
             lock.release()
