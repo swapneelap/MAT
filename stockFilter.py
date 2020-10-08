@@ -234,6 +234,7 @@ def BUY( stock_list_in,stock_list_out,lock ):
 #######################################################################
 
 today = dt.datetime.today()
+print("Today is ", str(today))
 endDate = today.strftime('%Y-%m-%d')
 startDate = dt.datetime.strptime(endDate, '%Y-%m-%d') - dt.timedelta(days=800)
 
